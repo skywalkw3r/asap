@@ -8,6 +8,7 @@
             <h2 class="h5 mb-0">Request Status (Placeholder)</h2>
         </div>
         <div class="card-body">
+            {# Access pk via view context provided by TemplateView #}
             <p>This page will eventually show the status for Request ID: {{ view.kwargs.pk }}.</p>
             <p><em>(This feature is under development.)</em></p>
             <a href="{% url 'request_server' %}" class="btn btn-secondary mt-3">Back to Request Form</a>

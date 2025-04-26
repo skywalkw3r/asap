@@ -20,8 +20,8 @@ class ServerRequest(models.Model):
     fqdn = models.CharField(max_length=255, unique=True, help_text="Fully Qualified Domain Name (e.g., server1.example.com)")
     vlan = models.CharField(max_length=100, help_text="VLAN ID or Name")
     site = models.CharField(max_length=100, help_text="Datacenter or Site Location")
-    primary_contact = models.EmailField(max_length=255, help_text="Primary Contact Email Address")
-    secondary_contact = models.CharField(max_length=255, blank=True, help_text="Secondary Contact Email Address")
+    primary_contact = models.EmailField(max_length=255, help_text="Primary Contact Email Address") # Changed to EmailField
+    secondary_contact = models.CharField(max_length=255, blank=True, help_text="Secondary Contact Email Address (Optional)")
     group_contact = models.CharField(max_length=255, blank=True, help_text="Group Contact / DL (Optional)")
     notes = models.TextField(blank=True, help_text="Any additional notes or requirements")
     backup_required = models.BooleanField(default=False)
@@ -31,7 +31,7 @@ class ServerRequest(models.Model):
     # Internal tracking fields
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     requested_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True) # Tracks last model save
+    updated_at = models.DateTimeField(auto_now=True)
     approved_denied_at = models.DateTimeField(null=True, blank=True)
     approved_denied_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -47,9 +47,10 @@ class ServerRequest(models.Model):
         return f"Request for {self.fqdn} ({self.status})"
 
     class Meta:
-        ordering = ['-requested_at'] # Show newest requests first
+        ordering = ['-requested_at']
         verbose_name = "Server Request"
         verbose_name_plural = "Server Requests"
+
 
 class AuditLog(models.Model):
     """Model to store audit log entries for significant actions."""
@@ -58,7 +59,7 @@ class AuditLog(models.Model):
         ('INFO', 'Info'),
         ('WARNING', 'Warning'),
         ('ERROR', 'Error'),
-        ('SUCCESS', 'Success'), # Added for clarity on success
+        ('SUCCESS', 'Success'),
     ]
 
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -67,7 +68,7 @@ class AuditLog(models.Model):
     message = models.TextField(help_text="Detailed log message.")
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL, # Keep log even if user is deleted
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='audit_logs',
@@ -75,13 +76,12 @@ class AuditLog(models.Model):
     )
     related_request = models.ForeignKey(
         ServerRequest,
-        on_delete=models.CASCADE, # Delete logs if the request is deleted
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='audit_logs',
         help_text="The server request this log pertains to (if applicable)."
     )
-    # Store the specific job ID here too for easier log searching/correlation
     related_awx_job_id = models.IntegerField(null=True, blank=True, help_text="AWX Job ID related to this log entry (if applicable).")
 
     def __str__(self):
@@ -90,6 +90,6 @@ class AuditLog(models.Model):
         return f"{self.timestamp:%Y-%m-%d %H:%M:%S} [{self.level}] {self.action}{user_str}{req_str}"
 
     class Meta:
-        ordering = ['-timestamp'] # Show newest logs first
+        ordering = ['-timestamp']
         verbose_name = "Audit Log Entry"
         verbose_name_plural = "Audit Log Entries"

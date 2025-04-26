@@ -14,57 +14,33 @@
             <form method="post" novalidate>
                 {% csrf_token %}
 
-                {# Explicitly render non-field errors if any #}
                 {% if form.non_field_errors %}
                     <div class="alert alert-danger">
-                        {% for error in form.non_field_errors %}
-                            {{ error }}<br>
-                        {% endfor %}
+                        {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
                     </div>
                 {% endif %}
 
-                {# Loop through fields and apply Bootstrap classes #}
                 {% for field in form %}
-                    <div class="mb-3 row"> {# Use row for better label alignment on larger screens #}
-                        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-sm-end">
+                    <div class="mb-3 row">
+                        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-sm-end fw-bold">
                             {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
                         </label>
                         <div class="col-sm-9">
-                            {# --- Input Type Handling --- #}
                             {% if field.field.widget.input_type == 'checkbox' %}
-                                <div class="form-check pt-2"> {# Add padding-top to align better #}
-                                    <input type="{{ field.field.widget.input_type }}"
-                                           name="{{ field.name }}"
-                                           id="{{ field.id_for_label }}"
-                                           class="form-check-input {% if field.errors %}is-invalid{% endif %}"
-                                           {% if field.value %}checked{% endif %}>
-                                    {# Checkbox label is handled by the main label tag for better accessibility #}
+                                <div class="form-check pt-2">
+                                    <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-check-input {% if field.errors %}is-invalid{% endif %}" {% if field.value %}checked{% endif %}>
                                 </div>
                             {% elif field.field.widget.input_type == 'select' %}
-                                <select name="{{ field.name }}"
-                                        id="{{ field.id_for_label }}"
-                                        class="form-select {% if field.errors %}is-invalid{% endif %}">
+                                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-select {% if field.errors %}is-invalid{% endif %}">
                                     {% for value, text in field.field.widget.choices %}
                                         <option value="{{ value }}" {% if field.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
                                     {% endfor %}
                                 </select>
                             {% elif field.field.widget.input_type == 'textarea' %}
-                                 <textarea name="{{ field.name }}"
-                                           id="{{ field.id_for_label }}"
-                                           class="form-control {% if field.errors %}is-invalid{% endif %}"
-                                           rows="{{ field.field.widget.attrs.rows|default:'3' }}"
-                                           >{% if field.value %}{{ field.value }}{% endif %}</textarea>
-                            {% else %} {# Default for text, email, url, number, etc. #}
-                                <input type="{{ field.field.widget.input_type }}"
-                                       name="{{ field.name }}"
-                                       id="{{ field.id_for_label }}"
-                                       class="form-control {% if field.errors %}is-invalid{% endif %}"
-                                       value="{{ field.value|default:'' }}"
-                                       {% if field.field.max_length %}maxlength="{{ field.field.max_length }}"{% endif %}
-                                       {% if field.field.required %}required{% endif %}
-                                       >
+                                 <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" rows="{{ field.field.widget.attrs.rows|default:'3' }}">{% if field.value %}{{ field.value }}{% endif %}</textarea>
+                            {% else %}
+                                <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" value="{{ field.value|default:'' }}" {% if field.field.max_length %}maxlength="{{ field.field.max_length }}"{% endif %} {% if field.field.required %}required{% endif %}>
                             {% endif %}
-                            {# --- End Input Type Handling --- #}
 
                             {% if field.errors %}
                                 <div class="invalid-feedback">
@@ -86,7 +62,6 @@
                          <button type="reset" class="btn btn-outline-secondary ms-2">Reset Form</button>
                      </div>
                  </div>
-
             </form>
         </div>
     </div>

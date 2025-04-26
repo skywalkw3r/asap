@@ -1,10 +1,8 @@
-# requirements.txt
-Django>=4.0,<5.0
+Django>=4.2,<4.3
 requests>=2.20.0
 python-dotenv>=0.19.0
-gunicorn
-dj-database-url
-# psycopg2-binary # If using PostgreSQL
-
+gunicorn>=20.0.0
+dj-database-url>=0.5.0
+# psycopg2-binary # Uncomment if using PostgreSQL
 django-jazzmin>=2.6,<3.0
-whitenoise[brotli]>=6.0.0 # Add this line
+whitenoise[brotli]>=6.0.0

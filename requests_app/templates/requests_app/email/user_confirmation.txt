@@ -1,5 +1,3 @@
-# provisioning_portal/requests_app/templates/requests_app/email/user_confirmation.txt
-
 Hello,
 
 Thank you for submitting your server request via the ASAP Portal. Your request details are below:

@@ -16,21 +16,17 @@ class ServerRequestForm(forms.ModelForm):
         ]
         widgets = {
             'notes': forms.Textarea(attrs={'rows': 3}),
-            # Ensure primary_contact uses the email input type in HTML
-            'primary_contact': forms.EmailInput(),
-            # Explicitly set secondary as email type for browser hints, but validation is custom
-            'secondary_contact': forms.EmailInput(),
+            'primary_contact': forms.EmailInput(), # Use EmailInput widget
+            'secondary_contact': forms.EmailInput(), # Use EmailInput for hint
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Field requirements (primary_contact is EmailField, already required by default)
+        # Model field `primary_contact` is EmailField, making it required by default
         self.fields['fqdn'].required = True
         self.fields['vlan'].required = True
         self.fields['site'].required = True
-        # primary_contact requirement is handled by the model field change
 
-    # Custom validation for the optional secondary_contact field
     def clean_secondary_contact(self):
         secondary_email = self.cleaned_data.get('secondary_contact')
         if secondary_email: # Only validate if something was entered
