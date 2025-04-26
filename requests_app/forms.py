@@ -3,92 +3,56 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from .models import ServerRequest
+import re
+EMPTY_LABEL = "--------- Select ---------"
 
-class ServerRequestForm(forms.ModelForm):
-    """Form for end-users to submit server requests."""
-
-    # Make terms required explicitly in the form
-    terms_accepted = forms.BooleanField(required=True, label="Terms and Conditions")
-
+class ServerRequestStep1Form(forms.ModelForm):
     class Meta:
         model = ServerRequest
-        fields = [
-            'fqdn', 'vlan', 'site', 'primary_contact', 'secondary_contact',
-            'group_contact', 'notes', 'backup_required', 'monitoring_required',
-            'asap_number',
-            'os_type', 'cpu_cores', 'memory_gb', 'os_disk_gb', 'data_disk_gb',
-            'terms_accepted',
-        ]
-        widgets = {
-            'notes': forms.Textarea(attrs={'rows': 5}),
-            'primary_contact': forms.EmailInput(),
-            'secondary_contact': forms.EmailInput(),
-            'group_contact': forms.EmailInput(),
-            'os_disk_gb': forms.NumberInput(attrs={'min': '100', 'max': '500'}),
-            'data_disk_gb': forms.NumberInput(attrs={'min': '100', 'max': '750'}),
-            'backup_required': forms.CheckboxInput(),
-            'monitoring_required': forms.CheckboxInput(),
-        }
-        labels = {
-            'os_disk_gb': 'OS Disk Size (GB)',
-            'data_disk_gb': 'Data Disk Size (GB)',
-            'memory_gb': 'Memory (RAM)',
-        }
-        help_texts = {
-             'fqdn': 'Enter the desired Fully Qualified Domain Name (e.g., server.site.company.com). Will be converted to uppercase.',
-             'vlan': 'Enter the VLAN ID or Name. Will be converted to uppercase.',
-        }
+        fields = ['fqdn', 'vlan', 'location', 'backup_required', 'monitoring_required', 'os_type', 'cpu_cores', 'memory_gb', 'os_disk_gb', 'data_disk_gb', 'patching_group', 'hypervisor_type']
+        widgets = {'os_disk_gb': forms.NumberInput(attrs={'min': '100', 'max': '500', 'step': '10'}), 'data_disk_gb': forms.NumberInput(attrs={'min': '100', 'max': '750', 'step': '10'}), 'backup_required': forms.CheckboxInput(), 'monitoring_required': forms.CheckboxInput()}
+        labels = {'fqdn': 'Desired FQDN', 'os_disk_gb': 'OS Disk Size (GB)', 'data_disk_gb': 'Data Disk Size (GB)', 'memory_gb': 'Memory (RAM)', 'location': 'Location', 'hypervisor_type': 'Hypervisor Type'}
+        help_texts = {'fqdn': 'Uppercase enforced.', 'vlan': 'Select the VLAN.', 'data_disk_gb': 'Optional. Enter size in GB (100-750). Leave blank if no data disk needed.'}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['fqdn'].required = True
-        self.fields['vlan'].required = True
-        self.fields['site'].required = True
-        self.fields['os_type'].required = True
-        self.fields['cpu_cores'].required = True
-        self.fields['memory_gb'].required = True
-        self.fields['os_disk_gb'].required = True
-        self.fields['data_disk_gb'].required = True
+        self.fields['vlan'].empty_label = EMPTY_LABEL; self.fields['location'].empty_label = EMPTY_LABEL; self.fields['os_type'].empty_label = EMPTY_LABEL; self.fields['cpu_cores'].empty_label = EMPTY_LABEL; self.fields['memory_gb'].empty_label = EMPTY_LABEL; self.fields['patching_group'].empty_label = EMPTY_LABEL
+        if len(self.fields['hypervisor_type'].choices) <= 1: self.fields['hypervisor_type'].disabled = True; self.fields['hypervisor_type'].required = False
+        self.fields['fqdn'].required = True; self.fields['vlan'].required = True; self.fields['location'].required = True; self.fields['os_type'].required = True; self.fields['cpu_cores'].required = True; self.fields['memory_gb'].required = True; self.fields['os_disk_gb'].required = True; self.fields['patching_group'].required = True; self.fields['data_disk_gb'].required = False
 
-    # --- Validation Methods ---
+    def clean_fqdn(self): fqdn = self.cleaned_data.get('fqdn'); return fqdn.upper() if fqdn else fqdn
+    def clean_data_disk_gb(self):
+        data_disk = self.cleaned_data.get('data_disk_gb');
+        if data_disk is None: return None
+        if not (100 <= data_disk <= 750): raise ValidationError("If specified, Data Disk size must be between 100 and 750 GB.", code='invalid_data_disk_range')
+        return data_disk
 
-    def clean_fqdn(self):
-        fqdn = self.cleaned_data.get('fqdn')
-        if fqdn:
-            return fqdn.upper()
-        return fqdn
+class ServerRequestStep2Form(forms.ModelForm):
+    terms_accepted = forms.BooleanField(required=True, label="Terms and Conditions")
+    class Meta:
+        model = ServerRequest
+        fields = ['primary_contact', 'secondary_contact', 'group_contact', 'ticket_number', 'user_ids', 'notes', 'terms_accepted']
+        widgets = {'primary_contact': forms.EmailInput(), 'secondary_contact': forms.EmailInput(), 'group_contact': forms.EmailInput(), 'user_ids': forms.Textarea(attrs={'rows': 3}), 'notes': forms.Textarea(attrs={'rows': 5})}
+        labels = {'ticket_number': 'Ticket #', 'user_ids': 'User IDs'}
+        help_texts = {'ticket_number': 'JIRA/ServiceNow Ticket Number (Optional)', 'user_ids': 'Enter UserIDs/Usernames (comma-separated).'}
 
-    def clean_vlan(self):
-        vlan = self.cleaned_data.get('vlan')
-        if vlan:
-            return vlan.upper()
-        return vlan
+    def __init__(self, *args, **kwargs): super().__init__(*args, **kwargs); self.fields['ticket_number'].required = False; self.fields['user_ids'].required = False
 
     def clean_group_contact(self):
-        group_email = self.cleaned_data.get('group_contact')
+        group_email = self.cleaned_data.get('group_contact');
         if group_email:
-            try:
-                validate_email(group_email)
-            except ValidationError:
-                raise ValidationError("Please enter a valid email address for the group contact.", code='invalid_group_email')
+            try: validate_email(group_email)
+            except ValidationError: raise ValidationError("Invalid email for group contact.", code='invalid_group_email')
         return group_email
-
-    # Ensure secondary != primary
+    def clean_user_ids(self):
+        user_ids_text = self.cleaned_data.get('user_ids', '');
+        if not user_ids_text: return ''
+        user_ids_list = [uid.strip() for uid in user_ids_text.split(',') if uid.strip()]
+        valid_pattern = re.compile(r'^[a-zA-Z0-9_.-]+$')
+        invalid_ids = [uid for uid in user_ids_list if not valid_pattern.match(uid)]
+        if invalid_ids: raise ValidationError(f"Invalid User ID format: {', '.join(invalid_ids)}. Use letters, numbers, _, -, .", code='invalid_user_id')
+        return ",".join(user_ids_list)
     def clean(self):
-        cleaned_data = super().clean()
-        primary = cleaned_data.get("primary_contact")
-        secondary = cleaned_data.get("secondary_contact")
-
-        if secondary and primary and secondary.strip().lower() == primary.strip().lower():
-            self.add_error('secondary_contact', "Secondary contact email cannot be the same as the primary contact.")
-
-        # Validate numeric ranges (redundant if model validators work, but good practice)
-        os_disk = cleaned_data.get('os_disk_gb')
-        if os_disk is not None and not (100 <= os_disk <= 500):
-             self.add_error('os_disk_gb', "OS Disk size must be between 100 and 500 GB.")
-
-        data_disk = cleaned_data.get('data_disk_gb')
-        if data_disk is not None and not (100 <= data_disk <= 750):
-             self.add_error('data_disk_gb', "Data Disk size must be between 100 and 750 GB.")
-
-        return cleaned_data # Return cleaned data
+        cleaned_data = super().clean(); primary = cleaned_data.get("primary_contact"); secondary = cleaned_data.get("secondary_contact")
+        if secondary and primary and secondary.strip().lower() == primary.strip().lower(): self.add_error('secondary_contact', "Secondary contact cannot be same as primary.")
+        return cleaned_data

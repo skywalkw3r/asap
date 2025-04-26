@@ -4,19 +4,31 @@ Request Details:
 -------------------------
 Request ID: {{ request.id }}
 FQDN: {{ request.fqdn }}
-VLAN: {{ request.vlan }}
-Site: {{ request.site }}
+VLAN: {{ request.get_vlan_display }}
+Location: {{ request.get_location_display }}
 Primary Contact: {{ request.primary_contact }}
 Secondary Contact: {{ request.secondary_contact|default:"N/A" }}
 Group Contact: {{ request.group_contact|default:"N/A" }}
+Ticket #: {{ request.ticket_number|default:"N/A" }}
+
+OS Type: {{ request.get_os_type_display }}
+CPU Cores: {{ request.get_cpu_cores_display }}
+Memory: {{ request.get_memory_gb_display }}
+OS Disk: {{ request.os_disk_gb }} GB
+Data Disk: {{ request.data_disk_gb|default:"N/A" }} GB
+Patching Group: {{ request.get_patching_group_display }}
+Hypervisor Type: {{ request.get_hypervisor_type_display }}
+
 Backup Required: {{ request.backup_required|yesno:"Yes,No" }}
 Monitoring Required: {{ request.monitoring_required|yesno:"Yes,No" }}
-ASAP #: {{ request.asap_number|default:"N/A" }}
-Submitted At: {{ request.requested_at|date:"Y-m-d H:i:s T" }}
+
+User IDs requiring access:
+{{ request.user_ids|default:"N/A"|linebreaksbr }}
 
 Notes:
 {{ request.notes|default:"None" }}
 -------------------------
+Submitted At: {{ request.requested_at|date:"Y-m-d H:i:s T" }}
 
 Please log in to the admin portal to review and approve/deny this request.
 Admin Link: {{ admin_url }}
