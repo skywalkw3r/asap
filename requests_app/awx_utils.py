@@ -48,7 +48,12 @@ def trigger_awx_job(server_request):
         "req_backup": server_request.backup_required,
         "req_monitoring": server_request.monitoring_required,
         "req_asap_number": server_request.asap_number,
-        "request_portal_id": server_request.id
+        "request_portal_id": server_request.id,
+        "req_os_type": server_request.os_type,
+        "req_cpu_cores": server_request.cpu_cores,
+        "req_memory_gb": server_request.memory_gb,
+        "req_os_disk_gb": server_request.os_disk_gb,
+        "req_data_disk_gb": server_request.data_disk_gb,
     }
 
     payload = {

@@ -1,0 +1,28 @@
+{% extends "requests_app/base.html" %}
+
+{% block title %}ASAP - Terms and Conditions{% endblock %}
+
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h2 class="h5 mb-0">Terms and Conditions</h2>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">Service Usage Policy</h4>
+            <p>By submitting a server request through this portal, you agree to the following terms:</p>
+            <ul>
+                <li>All requested resources must be for legitimate company business purposes.</li>
+                <li>You are responsible for the security and compliance of the provisioned server according to company policy.</li>
+                <li>Resource allocation (CPU, RAM, Disk) should be reasonably estimated. Significant over-provisioning may be questioned.</li>
+                <li>Standard company policies regarding data handling, acceptable use, and security apply to all provisioned servers.</li>
+                <li>The IT department reserves the right to deny requests or modify specifications based on resource availability and policy.</li>
+                <li>Provisioning times are estimates and subject to workload and potential issues.</li>
+                <li>You agree to decommission servers promptly when they are no longer required.</li>
+                <li>[Add any other specific terms your company requires here]</li>
+            </ul>
+            <p>Failure to adhere to these terms may result in revocation of access or other disciplinary action according to company policy.</p>
+            <hr>
+            <button class="btn btn-secondary" onclick="window.close()">Close Window</button>
+        </div>
+    </div>
+{% endblock %}

@@ -3,6 +3,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class ServerRequest(models.Model):
     """Model to store server provisioning requests."""
@@ -27,6 +28,34 @@ class ServerRequest(models.Model):
     backup_required = models.BooleanField(default=False)
     monitoring_required = models.BooleanField(default=False)
     asap_number = models.CharField(max_length=100, blank=True, help_text="ASAP/Remedy/ServiceNow Ticket Number (Optional)")
+
+    OS_TYPES = [
+        ('rhel8', 'RHEL 8'),
+        ('rhel9', 'RHEL 9'),
+        ('win2022', 'Windows Server 2022 Standard'),
+        ('win2025', 'Windows Server 2025 Standard'),
+    ]
+    CPU_CHOICES = [(2, '2 Cores'), (4, '4 Cores'), (8, '8 Cores')]
+    MEM_CHOICES = [
+        (8, '8 GB'), (12, '12 GB'), (16, '16 GB'), (20, '20 GB'),
+        (24, '24 GB'), (28, '28 GB'), (32, '32 GB')
+    ]
+
+    os_type = models.CharField(max_length=20, choices=OS_TYPES, default='rhel9', help_text="Select the Operating System")
+    cpu_cores = models.IntegerField(choices=CPU_CHOICES, default=4, help_text="Select the number of CPU cores")
+    memory_gb = models.IntegerField(choices=MEM_CHOICES, default=16, help_text="Select the amount of RAM")
+    os_disk_gb = models.IntegerField(
+        default=100,
+        help_text="Size of the OS disk (100-500 GB)",
+        validators=[MinValueValidator(100), MaxValueValidator(500)]
+    )
+    data_disk_gb = models.IntegerField(
+        default=100,
+        help_text="Size of the Data disk (100-750 GB)",
+        validators=[MinValueValidator(100), MaxValueValidator(750)]
+    )
+
+    terms_accepted = models.BooleanField(default=False, help_text="You must accept the terms and conditions")
 
     # Internal tracking fields
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
@@ -93,3 +122,4 @@ class AuditLog(models.Model):
         ordering = ['-timestamp']
         verbose_name = "Audit Log Entry"
         verbose_name_plural = "Audit Log Entries"
+#

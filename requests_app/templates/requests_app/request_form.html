@@ -20,41 +20,102 @@
                     </div>
                 {% endif %}
 
-                {% for field in form %}
-                    <div class="mb-3 row">
-                        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-sm-end fw-bold">
-                            {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
-                        </label>
-                        <div class="col-sm-9">
-                            {% if field.field.widget.input_type == 'checkbox' %}
-                                <div class="form-check pt-2">
-                                    <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-check-input {% if field.errors %}is-invalid{% endif %}" {% if field.value %}checked{% endif %}>
-                                </div>
-                            {% elif field.field.widget.input_type == 'select' %}
-                                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-select {% if field.errors %}is-invalid{% endif %}">
-                                    {% for value, text in field.field.widget.choices %}
-                                        <option value="{{ value }}" {% if field.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
-                                    {% endfor %}
-                                </select>
-                            {% elif field.field.widget.input_type == 'textarea' %}
-                                 <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" rows="{{ field.field.widget.attrs.rows|default:'3' }}">{% if field.value %}{{ field.value }}{% endif %}</textarea>
-                            {% else %}
-                                <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" value="{{ field.value|default:'' }}" {% if field.field.max_length %}maxlength="{{ field.field.max_length }}"{% endif %} {% if field.field.required %}required{% endif %}>
-                            {% endif %}
+                <h4 class="mt-4">Request Details</h4>
+                <hr>
 
-                            {% if field.errors %}
-                                <div class="invalid-feedback">
-                                    {{ field.errors|striptags }}
-                                </div>
-                            {% endif %}
-                            {% if field.help_text %}
-                                <div class="form-text text-muted">
-                                    {{ field.help_text|safe }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
+                {# Loop through fields and apply Bootstrap classes #}
+                {% for field in form %}
+                    {# --- Skip terms field here, render it manually later --- #}
+                    {% if field.name != 'terms_accepted' %}
+
+                        {# --- Add OS Details Header --- #}
+                        {% if field.name == 'os_type' %}
+                            <h4 class="mt-4 pt-2">Operating System Details</h4>
+                            <hr>
+                        {% endif %}
+
+                        <div class="mb-3 row">
+                            <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-sm-end fw-bold">
+                                {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <div class="col-sm-9">
+                                {# --- Special Rendering for Toggles --- #}
+                                {% if field.name == 'backup_required' or field.name == 'monitoring_required' %}
+                                    <div class="form-check form-switch pt-2">
+                                        <input class="form-check-input {% if field.errors %}is-invalid{% endif %}" type="checkbox" role="switch" id="{{ field.id_for_label }}" name="{{ field.name }}" {% if field.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="{{ field.id_for_label }}">
+                                            {# Optional: Show On/Off text #}
+                                            {# {% if field.value %}On{% else %}Off{% endif %} #}
+                                        </label>
+                                    </div>
+
+                                {# --- Standard Rendering for other fields --- #}
+                                {% elif field.field.widget.input_type == 'select' %}
+                                    <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-select {% if field.errors %}is-invalid{% endif %}">
+                                        {% for value, text in field.field.widget.choices %}
+                                            <option value="{{ value }}" {% if field.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% elif field.field.widget.input_type == 'textarea' %}
+                                     <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" rows="{{ field.field.widget.attrs.rows|default:'5' }}">{% if field.value %}{{ field.value }}{% endif %}</textarea>
+                                {% elif field.field.widget.input_type == 'number' %}
+                                    <input type="{{ field.field.widget.input_type }}"
+                                           name="{{ field.name }}"
+                                           id="{{ field.id_for_label }}"
+                                           class="form-control {% if field.errors %}is-invalid{% endif %}"
+                                           value="{{ field.value|default:'' }}"
+                                           {% if field.field.widget.attrs.min %}min="{{ field.field.widget.attrs.min }}"{% endif %}
+                                           {% if field.field.widget.attrs.max %}max="{{ field.field.widget.attrs.max }}"{% endif %}
+                                           step="1" {# Optional: for number input spinners #}
+                                           {% if field.field.required %}required{% endif %}>
+                                {% else %} {# Default text, email, etc. #}
+                                    <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" value="{{ field.value|default:'' }}" {% if field.field.max_length %}maxlength="{{ field.field.max_length }}"{% endif %} {% if field.field.required %}required{% endif %}>
+                                {% endif %}
+
+                                {# Add (GB) Label for disk fields #}
+                                {% if field.name == 'os_disk_gb' or field.name == 'data_disk_gb' %}
+                                     <span class="form-text text-muted ps-1">(GB)</span>
+                                {% endif %}
+
+
+                                {% if field.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ field.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted">
+                                        {{ field.help_text|safe }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div> {# End col-sm-9 #}
+                    {% endif %} {# End check for terms_accepted #}
                 {% endfor %}
+
+                <hr class="mt-4">
+
+                {# --- Render Terms and Conditions Checkbox Manually --- #}
+                 <div class="mb-3 row">
+                     <div class="col-sm-9 offset-sm-3">
+                        <div class="form-check">
+                            {# Access the specific field from the form #}
+                            {% with terms_field=form.terms_accepted %}
+                                <input type="checkbox" class="form-check-input {% if terms_field.errors %}is-invalid{% endif %}" name="{{ terms_field.name }}" id="{{ terms_field.id_for_label }}" required>
+                                <label class="form-check-label" for="{{ terms_field.id_for_label }}">
+                                     {# Add your actual terms link here! #}
+                                    I accept the <a href="{% url 'terms_conditions' %}" target="_blank">Terms and Conditions</a>. <span class="text-danger">*</span>
+                                </label>
+                                {% if terms_field.errors %}
+                                    <div class="invalid-feedback d-block">
+                                         {{ terms_field.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                         </div>
+                     </div>
+                 </div>
+
 
                 <div class="row mt-4">
                      <div class="col-sm-9 offset-sm-3">

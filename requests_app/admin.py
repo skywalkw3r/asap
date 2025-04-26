@@ -10,13 +10,18 @@ from .awx_utils import trigger_awx_job
 
 @admin.register(ServerRequest)
 class ServerRequestAdmin(admin.ModelAdmin):
-    list_display = ('fqdn', 'status', 'site', 'primary_contact', 'requested_at', 'approved_denied_by')
-    list_filter = ('status', 'site', 'backup_required', 'monitoring_required', 'requested_at', 'approved_denied_by')
-    search_fields = ('fqdn', 'primary_contact', 'secondary_contact', 'group_contact', 'asap_number', 'vlan', 'admin_notes')
+    # Add new fields to display
+    list_display = ('fqdn', 'status', 'os_type', 'cpu_cores', 'memory_gb', 'site', 'primary_contact', 'requested_at')
+    # Add new fields to filters
+    list_filter = ('status', 'site', 'os_type', 'cpu_cores', 'memory_gb', 'backup_required', 'monitoring_required', 'requested_at', 'approved_denied_by')
+    # Add new fields to search
+    search_fields = ('fqdn', 'primary_contact', 'secondary_contact', 'group_contact', 'asap_number', 'vlan', 'admin_notes', 'os_type')
     ordering = ('-requested_at',)
-    readonly_fields = ('requested_at', 'updated_at', 'approved_denied_at', 'approved_denied_by', 'awx_job_id')
+    # Add new fields to readonly if needed (maybe not, allow admin edits?)
+    readonly_fields = ('requested_at', 'updated_at', 'approved_denied_at', 'approved_denied_by', 'awx_job_id', 'terms_accepted') # Make terms readonly here
     date_hierarchy = 'requested_at'
 
+    # Update fieldsets
     fieldsets = (
         ('Request Details (Submitted by User)', {
             'fields': (
@@ -24,10 +29,16 @@ class ServerRequestAdmin(admin.ModelAdmin):
                 'group_contact', 'notes', 'backup_required', 'monitoring_required', 'asap_number'
             )
         }),
+        # Add new fieldset for OS Details
+        ('Operating System & Resources', {
+            'fields': (
+                'os_type', 'cpu_cores', 'memory_gb', 'os_disk_gb', 'data_disk_gb'
+            )
+        }),
         ('Approval Status & Tracking', {
             'fields': (
                 'status', 'admin_notes', 'approved_denied_by', 'approved_denied_at', 'awx_job_id',
-                'requested_at', 'updated_at'
+                'requested_at', 'updated_at', 'terms_accepted' # Show terms acceptance here
             )
         }),
     )
