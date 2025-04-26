@@ -1,1 +1,14 @@
-{% extends "requests_app/base.html" %}{% block title %}ASAP - Request Submitted{% endblock %}{% block content %} <div class="alert alert-success shadow-sm" role="alert"> <h4 class="alert-heading">Request Submitted Successfully!</h4> <p>Thank you for your request. The IT department has been notified and will review your request shortly.</p> <hr> <p class="mb-0"> <a href="{% url 'request_server_step1' %}" class="btn btn-primary">Submit Another Request</a> </p> </div> {% endblock %}
+{% extends "requests_app/base.html" %}
+
+{% block title %}ASAP - Request Submitted{% endblock %}
+
+{% block content %}
+    <div class="alert alert-success shadow-sm" role="alert">
+      <h4 class="alert-heading">Request Submitted Successfully!</h4>
+      <p>Thank you for your request. The IT department has been notified and will review your request shortly.</p>
+      <hr>
+      <p class="mb-0">
+          <a href="{% url 'request_server_step1' %}" class="btn btn-primary">Submit Another Request</a> {# Link back to step 1 #}
+      </p>
+    </div>
+{% endblock %}

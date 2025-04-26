@@ -7,7 +7,7 @@ Request Details:
 Request ID: {{ request.id }}
 Status: {{ request.get_status_display }}
 FQDN: {{ request.fqdn }}
-VLAN: {{ request.get_vlan_display }}
+VLAN: {{ request.vlan }}
 Location: {{ request.get_location_display }}
 Primary Contact: {{ request.primary_contact }}
 Secondary Contact: {{ request.secondary_contact|default:"N/A" }}

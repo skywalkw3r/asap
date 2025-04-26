@@ -1,1 +1,43 @@
-<!DOCTYPE html><html><head><title>New ASAP Server Request</title></head><body><h2>New Server Request Submitted (ASAP Portal)</h2><p>A new server request requires your attention.</p><h3>Request Details:</h3><table border="0" cellpadding="5" style="border-collapse: collapse; text-align: left;"><tr><td style="text-align: right; padding-right: 10px;"><strong>Request ID:</strong></td><td>{{ request.id }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>FQDN:</strong></td><td>{{ request.fqdn }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>VLAN:</strong></td><td>{{ request.get_vlan_display }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Location:</strong></td><td>{{ request.get_location_display }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Primary Contact:</strong></td><td>{{ request.primary_contact }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Secondary Contact:</strong></td><td>{{ request.secondary_contact|default:"N/A" }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Group Contact:</strong></td><td>{{ request.group_contact|default:"N/A" }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Ticket #:</strong></td><td>{{ request.ticket_number|default:"N/A" }}</td></tr></table><h3 style="margin-top: 15px;">Specifications:</h3><table border="0" cellpadding="5" style="border-collapse: collapse; text-align: left;"><tr><td style="text-align: right; padding-right: 10px;"><strong>OS Type:</strong></td><td>{{ request.get_os_type_display }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>CPU Cores:</strong></td><td>{{ request.get_cpu_cores_display }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Memory:</strong></td><td>{{ request.get_memory_gb_display }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>OS Disk:</strong></td><td>{{ request.os_disk_gb }} GB</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Data Disk:</strong></td><td>{{ request.data_disk_gb|default:"N/A" }} GB</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Patching Group:</strong></td><td>{{ request.get_patching_group_display }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Hypervisor Type:</strong></td><td>{{ request.get_hypervisor_type_display }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Backup Required:</strong></td><td>{{ request.backup_required|yesno:"Yes,No" }}</td></tr><tr><td style="text-align: right; padding-right: 10px;"><strong>Monitoring Required:</strong></td><td>{{ request.monitoring_required|yesno:"Yes,No" }}</td></tr></table><h3 style="margin-top: 15px;">User IDs requiring access:</h3><p style="white-space: pre-wrap; margin-left: 20px;">{{ request.user_ids|default:"N/A" }}</p><h3 style="margin-top: 15px;">Notes:</h3><p style="white-space: pre-wrap; margin-left: 20px;">{{ request.notes|default:"None" }}</p><hr><p>Submitted At: {{ request.requested_at|date:"Y-m-d H:i:s T" }}</p><p>Please <a href="{{ admin_url }}">log in to the admin portal</a> to review and approve/deny this request.</p></body></html>
+<!DOCTYPE html>
+<html>
+<head><title>New ASAP Server Request</title></head>
+<body>
+    <h2>New Server Request Submitted (ASAP Portal)</h2>
+    <p>A new server request requires your attention.</p>
+
+    <h3>Request Details:</h3>
+    <table border="0" cellpadding="5" style="border-collapse: collapse; text-align: left;">
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Request ID:</strong></td><td>{{ request.id }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>FQDN:</strong></td><td>{{ request.fqdn }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>VLAN:</strong></td><td>{{ request.vlan }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Location:</strong></td><td>{{ request.get_location_display }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Primary Contact:</strong></td><td>{{ request.primary_contact }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Secondary Contact:</strong></td><td>{{ request.secondary_contact|default:"N/A" }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Group Contact:</strong></td><td>{{ request.group_contact|default:"N/A" }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Ticket #:</strong></td><td>{{ request.ticket_number|default:"N/A" }}</td></tr>
+    </table>
+
+    <h3 style="margin-top: 15px;">Specifications:</h3>
+     <table border="0" cellpadding="5" style="border-collapse: collapse; text-align: left;">
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>OS Type:</strong></td><td>{{ request.get_os_type_display }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>CPU Cores:</strong></td><td>{{ request.get_cpu_cores_display }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Memory:</strong></td><td>{{ request.get_memory_gb_display }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>OS Disk:</strong></td><td>{{ request.os_disk_gb }} GB</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Data Disk:</strong></td><td>{{ request.data_disk_gb|default:"N/A" }} GB</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Patching Group:</strong></td><td>{{ request.get_patching_group_display }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Hypervisor Type:</strong></td><td>{{ request.get_hypervisor_type_display }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Backup Required:</strong></td><td>{{ request.backup_required|yesno:"Yes,No" }}</td></tr>
+        <tr><td style="text-align: right; padding-right: 10px;"><strong>Monitoring Required:</strong></td><td>{{ request.monitoring_required|yesno:"Yes,No" }}</td></tr>
+     </table>
+
+    <h3 style="margin-top: 15px;">User IDs requiring access:</h3>
+    <p style="white-space: pre-wrap; margin-left: 20px;">{{ request.user_ids|default:"N/A" }}</p>
+
+    <h3 style="margin-top: 15px;">Notes:</h3>
+    <p style="white-space: pre-wrap; margin-left: 20px;">{{ request.notes|default:"None" }}</p>
+
+    <hr>
+    <p>Submitted At: {{ request.requested_at|date:"Y-m-d H:i:s T" }}</p>
+    <p>Please <a href="{{ admin_url }}">log in to the admin portal</a> to review and approve/deny this request.</p>
+</body>
+</html>
