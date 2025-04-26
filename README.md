@@ -23,3 +23,7 @@ mkdir -p requests_app/templates/requests_app
 Django>=4.0,<5.0
 requests>=2.20.0
 python-dotenv>=0.19.0
+
+
+create secret key
+python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'

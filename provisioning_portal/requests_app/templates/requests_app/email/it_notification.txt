@@ -1,0 +1,22 @@
+A new server request has been submitted via the ASAP Portal.
+
+Request Details:
+-------------------------
+Request ID: {{ request.id }}
+FQDN: {{ request.fqdn }}
+VLAN: {{ request.vlan }}
+Site: {{ request.site }}
+Primary Contact: {{ request.primary_contact }}
+Secondary Contact: {{ request.secondary_contact|default:"N/A" }}
+Group Contact: {{ request.group_contact|default:"N/A" }}
+Backup Required: {{ request.backup_required|yesno:"Yes,No" }}
+Monitoring Required: {{ request.monitoring_required|yesno:"Yes,No" }}
+ASAP #: {{ request.asap_number|default:"N/A" }}
+Submitted At: {{ request.requested_at|date:"Y-m-d H:i:s T" }}
+
+Notes:
+{{ request.notes|default:"None" }}
+-------------------------
+
+Please log in to the admin portal to review and approve/deny this request.
+Admin Link: {{ admin_url }}
